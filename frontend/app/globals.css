@@ -1,0 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Outfit:wght@100..900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Outfit", system-ui, -apple-system, sans-serif;
+  
+  /* Heritage Sand & Gold Color Palette */
+  --color-sandy-50: #faf8f5;
+  --color-sandy-100: #f5eedf;
+  --color-sandy-200: #ebdcb9;
+  --color-sandy-300: #dec18a;
+  --color-sandy-400: #cea35c;
+  --color-sandy-500: #bf8539;
+  --color-sandy-600: #a16b2c;
+  --color-sandy-700: #815124;
+  --color-sandy-800: #623a1c;
+  --color-sandy-900: #492a17;
+  --color-sandy-950: #2b170c;
+
+  --color-gold-50: #fdfaf2;
+  --color-gold-100: #fbf5e6;
+  --color-gold-200: #f7e7be;
+  --color-gold-300: #f3d48d;
+  --color-gold-400: #eebf5e;
+  --color-gold-500: #e5a43b;
+  --color-gold-600: #ca842b;
+  --color-gold-700: #a46122;
+  --color-gold-800: #80471c;
+  --color-gold-900: #633517;
+  --color-gold-950: #371a0a;
+
+  /* Vedic Ayurvedic Sage Green */
+  --color-sage-50: #f4f7f5;
+  --color-sage-100: #e4ebe6;
+  --color-sage-200: #ccd9cf;
+  --color-sage-300: #a7c0ad;
+  --color-sage-400: #7fa187;
+  --color-sage-500: #608369;
+  --color-sage-600: #4a6752;
+  --color-sage-700: #3c5243;
+  --color-sage-800: #334338;
+  --color-sage-900: #2b3930;
+  --color-sage-950: #17211b;
+
+  /* Ayurvedic Terracotta Rose */
+  --color-rose-50: #fbf6f6;
+  --color-rose-100: #f6eaea;
+  --color-rose-200: #ecd7d7;
+  --color-rose-300: #dbb7b7;
+  --color-rose-400: #c58e8e;
+  --color-rose-500: #ab6a6a;
+  --color-rose-600: #8e5151;
+  --color-rose-700: #744040;
+  --color-rose-800: #5e3535;
+  --color-rose-900: #4d2e2e;
+  --color-rose-950: #281717;
+
+  /* Theme variables mapped for dynamic styles */
+  --color-bg-light: #f7f3eb;
+  --color-bg-dark: #0f0d0a;
+  
+  --color-card-light: rgba(255, 255, 255, 0.7);
+  --color-card-dark: rgba(24, 21, 17, 0.7);
+
+  --color-border-light: rgba(191, 133, 57, 0.35);
+  --color-border-dark: rgba(212, 175, 55, 0.15);
+}
+
+:root {
+  --background: #f7f3eb;
+  --foreground: #2d261e;
+  --card-bg: var(--color-card-light);
+  --border-color: var(--color-border-light);
+  --glow-color: rgba(229, 164, 59, 0.1);
+}
+
+[data-theme="dark"] {
+  --background: #0f0d0a;
+  --foreground: #f5eedf;
+  --card-bg: var(--color-card-dark);
+  --border-color: var(--color-border-dark);
+  --glow-color: rgba(229, 164, 59, 0.2);
+}
+
+/* Default dark mode based on media query unless explicitly toggled */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0f0d0a;
+    --foreground: #f5eedf;
+    --card-bg: var(--color-card-dark);
+    --border-color: var(--color-border-dark);
+    --glow-color: rgba(229, 164, 59, 0.2);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+[data-theme="dark"] body {
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Glassmorphism custom components */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px) saturate(130%);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+[data-theme="dark"] .glass-panel {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .glass-panel {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  }
+}
+
+.glow-hover {
+  transition: all 0.3s ease;
+}
+.glow-hover:hover {
+  box-shadow: 0 0 20px var(--glow-color);
+  border-color: rgba(229, 164, 59, 0.4);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sandy-400);
+}
+
+/* Animated backgrounds */
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.shloka-grid-bg {
+  background-image: radial-gradient(circle at 1px 1px, var(--border-color) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+/* Explicit theme handling for videos to bypass OS-level prefers-color-scheme issues */
+.theme-video-container {
+  display: block;
+}
+.theme-video-element {
+  opacity: 1;
+}
+
+/* Conditional rendering for /collections and /graph sections */
+.theme-conditional-galaxy {
+  display: block;
+}
+.theme-conditional-video {
+  display: none;
+}
+[data-theme="light"] .theme-conditional-galaxy {
+  display: none;
+}
+[data-theme="light"] .theme-conditional-video {
+  display: block;
+}

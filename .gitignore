@@ -1,0 +1,30 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+
+# Next.js
+node_modules/
+.next/
+out/
+build/
+
+# Logs and OS files
+*.log
+.DS_Store
+desktop.ini
+
+# Large Data and Media
+*.sqlite3
+*.db
+*.db.*
+*.mp4
+data/neo4j/
+ayurveda_db/
+backend/services/sanskrit_processor/ayurveda_db/
