@@ -61,7 +61,8 @@ class GraphService:
 
 
     def is_available(self) -> bool:
-
+        if self.driver is None:
+            self._connect()
         return self.driver is not None
 
 

@@ -7,15 +7,156 @@ function VRRoomPage() {
     <div className="w-full h-screen">
       <iframe
         className="w-full h-full border-0"
+        allow="autoplay; fullscreen; xr-spatial-tracking"
         srcDoc={`<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8"/>
 <title>VR Pathshala</title>
 <script src="https://aframe.io/releases/1.5.0/aframe.min.js"><\/script>
+<script>
+window.THREE = window.THREE || (window.AFRAME && window.AFRAME.THREE);
+
+AFRAME.registerComponent('fly-in', {
+  init: function () {
+    var self = this;
+    self.flying = false;
+    self.startTime = null;
+    self.duration = 6000;
+    self.waypoints = [
+      {t:0,    x:0, y:16,  z:62,  rx:-14},
+      {t:0.25, x:0, y:10,  z:44,  rx:-8},
+      {t:0.50, x:0, y:4.5, z:26,  rx:-3},
+      {t:0.72, x:0, y:2.5, z:15,  rx:-1},
+      {t:0.88, x:0, y:1.9, z:10,  rx:-0.3},
+      {t:1,    x:0, y:1.65,z:7,   rx:0}
+    ];
+    self.el.sceneEl.addEventListener('loaded', function () {
+      self.el.setAttribute('position', {x:0, y:16, z:62});
+      self.flying = true;
+      self.startTime = null;
+    });
+  },
+  tick: function (time) {
+    if (!this.flying) return;
+    if (!this.startTime) this.startTime = time;
+    var progress = Math.min((time - this.startTime) / this.duration, 1);
+    var ep = this.ease(progress);
+    var wps = this.waypoints;
+    var w0 = wps[0], w1 = wps[wps.length-1];
+    for (var i = 0; i < wps.length-1; i++) {
+      if (ep >= wps[i].t && ep <= wps[i+1].t) { w0 = wps[i]; w1 = wps[i+1]; break; }
+    }
+    var seg = w1.t === w0.t ? 1 : (ep - w0.t) / (w1.t - w0.t);
+    this.el.setAttribute('position', {
+      x: this.lerp(w0.x, w1.x, seg),
+      y: this.lerp(w0.y, w1.y, seg),
+      z: this.lerp(w0.z, w1.z, seg)
+    });
+    var cam = this.el.querySelector('[camera]');
+    if (cam) cam.setAttribute('rotation', {x: this.lerp(w0.rx, w1.rx, seg), y:0, z:0});
+    if (progress >= 1) {
+      this.finish();
+    }
+  },
+  finish: function() {
+    this.flying = false;
+    this.el.setAttribute('position', {x:0, y:1.65, z:7});
+    var cam = this.el.querySelector('[camera]');
+    if (cam) cam.setAttribute('rotation', {x:0, y:0, z:0});
+    var ch = document.getElementById('crosshair'); if(ch) ch.classList.add('show');
+    var hud = document.getElementById('hud'); if(hud) hud.classList.add('show');
+    var vig = document.getElementById('vignette'); if(vig) vig.classList.add('clear');
+    var qn = document.getElementById('quick-nav'); if(qn) qn.classList.add('show');
+    var btn = document.getElementById('btn-skip'); if(btn) btn.style.display = 'none';
+    window._introPlaying = false;
+  },
+  lerp: function(a,b,t){return a+(b-a)*t;},
+  ease: function(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
+});
+<\/script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{width:100%;height:100%;overflow:hidden;background:#0d0500;font-family:Georgia,serif;}
+
+#btn-skip {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(25, 12, 2, 0.85);
+  border: 1px solid #d4af37;
+  color: #FFD700;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  z-index: 10000;
+  transition: all 0.2s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+}
+#btn-skip:hover {
+  background: #d4af37;
+  color: #1a0800;
+  box-shadow: 0 0 20px rgba(212,175,55,0.6);
+}
+
+#quick-nav {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(18, 8, 1, 0.92);
+  border: 1px solid rgba(212, 175, 55, 0.45);
+  padding: 6px 14px;
+  border-radius: 26px;
+  z-index: 450;
+  backdrop-filter: blur(10px);
+  max-width: 96vw;
+  overflow-x: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+  opacity: 0;
+  transition: opacity 1s;
+}
+#quick-nav.show {
+  opacity: 1;
+}
+.qn-lbl {
+  color: #c8860a;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+.qn-btn {
+  background: rgba(45, 20, 2, 0.85);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  color: #FFD700;
+  padding: 5px 12px;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.qn-btn:hover {
+  background: #d4af37;
+  color: #1a0800;
+  border-color: #FFD700;
+  transform: translateY(-1px);
+}
+
+#near-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,60px);background:rgba(212,175,55,.2);border:1px solid #d4af37;color:#FFD700;font-size:13px;letter-spacing:2px;padding:10px 24px;border-radius:30px;z-index:300;display:none;text-align:center;cursor:pointer;pointer-events:auto;box-shadow:0 0 20px rgba(212,175,55,0.4);transition:all .2s;}
+#near-hint:hover{background:#d4af37;color:#1a0800;}
+#near-hint.show{display:block;}
 
 #loading{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at center,#1a0800,#000);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999;transition:opacity 1.2s;}
 #loading.out{opacity:0;pointer-events:none;}
@@ -70,10 +211,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0500;font-family:
 .nav-btn:disabled{opacity:0.25;cursor:default;}
 .page-counter{color:#c8860a;font-size:11px;letter-spacing:2px;}
 
-#hud{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);border:1px solid #5a3800;color:#c8860a;font-size:12px;letter-spacing:2px;padding:9px 20px;border-radius:30px;z-index:300;pointer-events:none;white-space:nowrap;opacity:0;transition:opacity 1.5s;}
+#hud{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.85);border:1px solid #5a3800;color:#c8860a;font-size:11px;letter-spacing:1.5px;padding:6px 18px;border-radius:24px;z-index:300;pointer-events:none;white-space:nowrap;opacity:0;transition:opacity 1.5s;}
 #hud.show{opacity:1;}
-#near-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,60px);background:rgba(212,175,55,.15);border:1px solid #d4af37;color:#FFD700;font-size:13px;letter-spacing:2px;padding:10px 24px;border-radius:30px;z-index:300;display:none;text-align:center;pointer-events:none;}
-#near-hint.show{display:block;}
 #crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:18px;height:18px;pointer-events:none;z-index:400;opacity:0;transition:opacity 1s;}
 #crosshair.show{opacity:0.7;}
 #crosshair span{position:absolute;background:#FFD700;}
@@ -82,6 +221,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0500;font-family:
 </style>
 </head>
 <body>
+
+<button id="btn-skip" onclick="skipIntro()">Skip Intro ⏭</button>
 
 <div id="loading">
   <div class="l-om">ॐ</div>
@@ -101,8 +242,20 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0500;font-family:
 </div>
 
 <div id="crosshair"><span></span><span></span></div>
-<div id="near-hint">✦ Double-click to open this scripture ✦</div>
-<div id="hud">🖱 Drag to look · WASD to walk · Walk near a scripture • Double-click to open • Arrow Keys to turn pages</div>
+<div id="near-hint" onclick="openFacingBook()">✦ Click or Double-click to Open Scripture ✦</div>
+<div id="hud">🖱 Drag to look · WASD to walk · Walk near a scripture or click below to read · Arrow Keys to turn pages</div>
+
+<div id="quick-nav">
+  <span class="qn-lbl">📜 Fast Scripture Access:</span>
+  <button class="qn-btn" onclick="openBook(0)">Takrāriṣṭa</button>
+  <button class="qn-btn" onclick="openBook(1)">Durālabhāriṣṭa</button>
+  <button class="qn-btn" onclick="openBook(2)">Rohitakāsava</button>
+  <button class="qn-btn" onclick="openBook(3)">Patrāṅgāsava</button>
+  <button class="qn-btn" onclick="openBook(4)">Viḍaṅgāsava</button>
+  <button class="qn-btn" onclick="openBook(5)">Piṇḍāsava</button>
+  <button class="qn-btn" onclick="openBook(6)">Nālikerāsava</button>
+  <button class="qn-btn" onclick="openBook(7)">Yogarājāsava</button>
+</div>
 
 <div id="book-panel">
   <div class="book-wrap">
@@ -284,57 +437,23 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0500;font-family:
 </a-scene>
 
 <script>
-AFRAME.registerComponent('fly-in', {
-  init: function () {
-    var self = this;
-    self.flying = false;
-    self.startTime = null;
-    self.duration = 10000;
-    self.waypoints = [
-      {t:0,    x:0, y:16,  z:62,  rx:-14},
-      {t:0.25, x:0, y:10,  z:44,  rx:-8},
-      {t:0.50, x:0, y:4.5, z:26,  rx:-3},
-      {t:0.72, x:0, y:2.5, z:15,  rx:-1},
-      {t:0.88, x:0, y:1.9, z:10,  rx:-0.3},
-      {t:1,    x:0, y:1.65,z:7,   rx:0}
-    ];
-    self.el.sceneEl.addEventListener('loaded', function () {
-      self.el.setAttribute('position', {x:0, y:16, z:62});
-      self.flying = true;
-      self.startTime = null;
-    });
-  },
-  tick: function (time) {
-    if (!this.flying) return;
-    if (!this.startTime) this.startTime = time;
-    var progress = Math.min((time - this.startTime) / this.duration, 1);
-    var ep = this.ease(progress);
-    var wps = this.waypoints;
-    var w0 = wps[0], w1 = wps[wps.length-1];
-    for (var i = 0; i < wps.length-1; i++) {
-      if (ep >= wps[i].t && ep <= wps[i+1].t) { w0 = wps[i]; w1 = wps[i+1]; break; }
-    }
-    var seg = w1.t === w0.t ? 1 : (ep - w0.t) / (w1.t - w0.t);
-    this.el.setAttribute('position', {
-      x: this.lerp(w0.x, w1.x, seg),
-      y: this.lerp(w0.y, w1.y, seg),
-      z: this.lerp(w0.z, w1.z, seg)
-    });
-    var cam = this.el.querySelector('[camera]');
-    if (cam) cam.setAttribute('rotation', {x: this.lerp(w0.rx, w1.rx, seg), y:0, z:0});
-    if (progress >= 1) {
-      this.flying = false;
-      this.el.setAttribute('position', {x:0, y:1.65, z:7});
-      if (cam) cam.setAttribute('rotation', {x:0, y:0, z:0});
-      document.getElementById('crosshair').classList.add('show');
-      document.getElementById('hud').classList.add('show');
-      document.getElementById('vignette').classList.add('clear');
-      window._introPlaying = false;
-    }
-  },
-  lerp: function(a,b,t){return a+(b-a)*t;},
-  ease: function(t){return t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;}
-});
+function skipIntro() {
+  window._introPlaying = false;
+  var rig = document.getElementById('rig');
+  if (rig && rig.components && rig.components['fly-in']) {
+    rig.components['fly-in'].finish();
+  } else if (rig) {
+    rig.setAttribute('position', {x:0, y:1.65, z:7});
+  }
+  var l = document.getElementById('loading'); if (l) { l.classList.add('out'); l.style.display='none'; }
+  var fade = document.getElementById('fade'); if (fade) fade.classList.add('clear');
+  var cin = document.getElementById('cin-overlay'); if (cin) cin.classList.add('bars-open');
+  var vig = document.getElementById('vignette'); if (vig) vig.classList.add('clear');
+  var ch = document.getElementById('crosshair'); if (ch) ch.classList.add('show');
+  var hud = document.getElementById('hud'); if (hud) hud.classList.add('show');
+  var qn = document.getElementById('quick-nav'); if (qn) qn.classList.add('show');
+  var btn = document.getElementById('btn-skip'); if (btn) btn.style.display = 'none';
+}
 
 var books = [
   {title:"Takrāriṣṭa",wallTitle:"Takrarista",src:"Bhaiṣajyaratnāvalī · Grahaṇīroga Cikitsā · Śloka 609–610 / Charaka 14.72–74",shlokas:[
@@ -473,65 +592,79 @@ var _currentSktAudio = null;
 function speakMeaning() {
   if (!currentBook) return;
   var s = currentBook.shlokas[currentPage];
-  speechSynthesis.cancel();
-  var utter = new SpeechSynthesisUtterance(s.meaning);
-  utter.rate = 0.92;
-  utter.pitch = 1.05;
-  utter.volume = 1;
-  var voice = pickFemaleVoice();
-  if (voice) utter.voice = voice;
-  speechSynthesis.speak(utter);
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  try {
+    var utter = new SpeechSynthesisUtterance(s.meaning);
+    utter.rate = 0.92;
+    utter.pitch = 1.05;
+    utter.volume = 1;
+    var voice = pickFemaleVoice();
+    if (voice) utter.voice = voice;
+    window.speechSynthesis.speak(utter);
+  } catch(e) {}
 }
 
 function speakShloka() {
   if (!currentBook) return;
   var s = currentBook.shlokas[currentPage];
-  speechSynthesis.cancel();
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
   if (_currentSktAudio) {
-    _currentSktAudio.pause();
+    try { _currentSktAudio.pause(); } catch(e){}
     _currentSktAudio.src = '';
     _currentSktAudio = null;
   }
-  if (s.audio) {
-    var audio = new Audio(s.audio);
-    _currentSktAudio = audio;
-    audio.addEventListener('ended', function() {
+  if (s && s.audio) {
+    try {
+      var audio = new Audio(s.audio);
+      _currentSktAudio = audio;
+      audio.addEventListener('ended', function() {
+        _currentSktAudio = null;
+        speakMeaning();
+      });
+      audio.addEventListener('error', function() {
+        _currentSktAudio = null;
+        speakMeaning();
+      });
+      var p = audio.play();
+      if (p && p.catch) {
+        p.catch(function() {
+          _currentSktAudio = null;
+          speakMeaning();
+        });
+      }
+    } catch(e) {
       _currentSktAudio = null;
       speakMeaning();
-    });
-    audio.addEventListener('error', function() {
-      _currentSktAudio = null;
-      speakMeaning();
-    });
-    audio.play().catch(function() {
-      _currentSktAudio = null;
-      speakMeaning();
-    });
+    }
   } else {
     speakMeaning();
   }
 }
 
 function getCameraPositionAndDirection() {
+  var T = window.THREE || (window.AFRAME && window.AFRAME.THREE);
+  if (!T) return null;
   var camEl = document.getElementById('cam');
   if (!camEl || !camEl.getObject3D) return null;
   var camera = camEl.getObject3D('camera');
   if (!camera) return null;
-  var origin = new THREE.Vector3();
-  var direction = new THREE.Vector3();
+  var origin = new T.Vector3();
+  var direction = new T.Vector3();
   camera.getWorldPosition(origin);
   camera.getWorldDirection(direction);
   return { origin: origin, direction: direction };
 }
 
 function getFacingTabletIndex(minDot) {
+  var T = window.THREE || (window.AFRAME && window.AFRAME.THREE);
+  if (!T) return -1;
   var cd = getCameraPositionAndDirection();
   if (!cd) return -1;
   var best = -1, bestDot = minDot;
   tabletPositions.forEach(function(t, i) {
-    var toTablet = new THREE.Vector3(t.x - cd.origin.x, 3.8 - cd.origin.y, t.z - cd.origin.z);
+    var toTablet = new T.Vector3(t.x - cd.origin.x, 3.8 - cd.origin.y, t.z - cd.origin.z);
     var dist = toTablet.length();
-    if (dist > 26) return;
+    if (dist > 32) return;
     toTablet.normalize();
     var dot = cd.direction.dot(toTablet);
     if (dot > bestDot) { bestDot = dot; best = i; }
@@ -539,7 +672,18 @@ function getFacingTabletIndex(minDot) {
   return best;
 }
 
+function openFacingBook() {
+  if (nearIdx >= 0) {
+    openBook(nearIdx);
+  } else {
+    var idx = getFacingTabletIndex(0.60);
+    if (idx >= 0) openBook(idx);
+    else openBook(0);
+  }
+}
+
 function openBook(idx) {
+  if (idx < 0 || idx >= books.length) return;
   currentBook = books[idx];
   currentPage = 0;
   document.getElementById('bp-title').innerText = currentBook.title;
@@ -596,9 +740,9 @@ function nextPage() {
 }
 
 function closeBook() {
-  speechSynthesis.cancel();
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
   if (_currentSktAudio) {
-    _currentSktAudio.pause();
+    try { _currentSktAudio.pause(); } catch(e){}
     _currentSktAudio.src = '';
     _currentSktAudio = null;
   }
@@ -621,42 +765,54 @@ var tabletPositions = [
 setInterval(function() {
   if (window._introPlaying) return;
   var bookOpen = document.getElementById('book-panel').classList.contains('show');
-  var idx = getFacingTabletIndex(0.85);
+  var idx = getFacingTabletIndex(0.75);
   nearIdx = idx;
   var nh = document.getElementById('near-hint');
-  if (idx >= 0 && !bookOpen) nh.classList.add('show');
-  else nh.classList.remove('show');
+  if (nh) {
+    if (idx >= 0 && !bookOpen) nh.classList.add('show');
+    else nh.classList.remove('show');
+  }
 }, 200);
 
 window.addEventListener('load', function() {
   setTimeout(function() {
     var l = document.getElementById('loading');
-    l.classList.add('out');
-    setTimeout(function(){ l.style.display='none'; }, 1200);
-    setTimeout(function(){ document.getElementById('fade').classList.add('clear'); }, 400);
+    if (l) {
+      l.classList.add('out');
+      setTimeout(function(){ l.style.display='none'; }, 1200);
+    }
+    setTimeout(function(){ var f = document.getElementById('fade'); if(f) f.classList.add('clear'); }, 400);
     setTimeout(function() {
-      document.getElementById('cin-title').classList.add('show');
-      document.getElementById('cin-sub').classList.add('show');
+      var ct = document.getElementById('cin-title'); if(ct) ct.classList.add('show');
+      var cs = document.getElementById('cin-sub'); if(cs) cs.classList.add('show');
     }, 800);
     setTimeout(function() {
-      document.getElementById('cin-title').classList.remove('show');
-      document.getElementById('cin-sub').classList.remove('show');
+      var ct = document.getElementById('cin-title'); if(ct) ct.classList.remove('show');
+      var cs = document.getElementById('cin-sub'); if(cs) cs.classList.remove('show');
       setTimeout(function() {
-        document.getElementById('cin-overlay').classList.add('bars-open');
-        document.getElementById('vignette').classList.add('clear');
+        var co = document.getElementById('cin-overlay'); if(co) co.classList.add('bars-open');
+        var vg = document.getElementById('vignette'); if(vg) vg.classList.add('clear');
+        var qn = document.getElementById('quick-nav'); if(qn) qn.classList.add('show');
       }, 600);
-    }, 2800);
-    var canvas = document.querySelector('canvas');
-    if (canvas) {
-      canvas.addEventListener('dblclick', function () {
-  if (window._introPlaying) return;
-  var bookOpen = document.getElementById('book-panel').classList.contains('show');
-  if (bookOpen) return;
-  var idx = getFacingTabletIndex(0.90);
-  if (idx >= 0) openBook(idx);
-});
+    }, 2400);
+  }, 1200);
+
+  // Safety fallback: ensure controls unlock
+  setTimeout(function() {
+    if (window._introPlaying) {
+      skipIntro();
     }
-  }, 2800);
+  }, 6500);
+
+  // Global double-click handler
+  window.addEventListener('dblclick', function (e) {
+    if (window._introPlaying) return;
+    if (e.target && (e.target.closest('#book-panel') || e.target.closest('#quick-nav') || e.target.tagName === 'BUTTON')) return;
+    var bookOpen = document.getElementById('book-panel').classList.contains('show');
+    if (bookOpen) return;
+    var idx = getFacingTabletIndex(0.70);
+    if (idx >= 0) openBook(idx);
+  });
 });
 <\/script>
 </body>

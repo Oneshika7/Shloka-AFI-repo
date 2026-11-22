@@ -116,7 +116,7 @@ export default function WorkspacePage() {
               setUploadProgress(50);
               
               try {
-                const response = await fetch("http://localhost:8002/api/v1/transcribe", {
+                const response = await fetch("/api/v1/transcribe", {
                   method: "POST",
                   headers: { 
                     "Content-Type": "application/json",
@@ -162,7 +162,7 @@ export default function WorkspacePage() {
       setUploadProgress(50);
       
       try {
-        const response = await fetch("http://localhost:8002/api/v1/transcribe", {
+        const response = await fetch("/api/v1/transcribe", {
           method: "POST",
           headers: { 
             "Content-Type": "application/json",
@@ -197,7 +197,7 @@ export default function WorkspacePage() {
     formData.append("file", file);
     
     try {
-      const response = await fetch("http://localhost:8002/api/v1/bulk-upload", {
+      const response = await fetch("/api/v1/bulk-upload", {
         method: "POST",
         headers: token ? { "Authorization": `Bearer ${token}` } : {},
         body: formData
@@ -247,7 +247,7 @@ export default function WorkspacePage() {
             source: fileName || "manual_entry"
         };
 
-        const response = await fetch("http://localhost:8002/api/v1/pipeline", {
+        const response = await fetch("/api/v1/pipeline", {
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",

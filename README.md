@@ -16,7 +16,7 @@
 
   *A production-grade, multi-agent AI system designed to digitize and extract clinical knowledge from classical Sanskrit Ayurvedic treatises into a modern Neo4j Knowledge Graph.*
 
-  [Key Features](#-core-capabilities) • [Architecture](#-system-architecture) • [Engineering Challenges](#-key-engineering-challenges--solutions) • [Benchmarks](#-benchmarks--quantifiable-impact) • [Documentation](#-comprehensive-documentation-hub)
+  [Key Features](#-core-capabilities) • [Visual Tour](#-visual-showcase--platform-tour) • [Architecture](#-system-architecture) • [Engineering Challenges](#-key-engineering-challenges--solutions) • [Benchmarks](#-benchmarks--quantifiable-impact) • [Documentation](#-comprehensive-documentation-hub)
 
 </div>
 
@@ -41,6 +41,71 @@ Ancient Ayurvedic treatises (*Charaka Samhita*, *Sushruta Samhita*, *Bhaishajya 
 * **Interactive Knowledge Graph:** Live Neo4j graph model structuring **250+ entity nodes** and **1,250+ clinical edges** (`[:TREATS]`, `[:BALANCES]`, `[:PACIFIES]`, `[:CONTAINS]`).
 * **3D Virtual Reality Pathshala:** Interactive WebGL / React Three Fiber / A-Frame virtual academy for immersive spatial exploration of manuscripts and botanical nodes.
 * **Enterprise Security Architecture:** Constant-time bcrypt timing-attack mitigation, JWT token lifecycle management, OAuth2, and SlowAPI sliding-window rate limiting.
+
+---
+
+## 📸 Visual Showcase & Platform Tour
+
+### 1. Landing Hero & Gateway
+> The immersive gateway combining classical Sanskrit iconography with modern analytical intelligence.
+
+<p align="center">
+  <img src="docs/assets/screenshots/01_landing_hero.jpg" alt="SHLOKA-AFI Landing Hero" width="95%" />
+</p>
+
+---
+
+### 2. Intelligent Ingestion & Multi-Agent Pipeline Execution
+> End-to-end ingestion supporting direct Devanagari input and high-resolution manuscript scans, monitored via real-time multi-agent pipeline telemetry (OCR → Normalization → Ontology Grounding → Neo4j Commit).
+
+<p align="center">
+  <img src="docs/assets/screenshots/02_pipeline_processing.jpg" alt="Multi-Agent Pipeline Processing" width="95%" />
+</p>
+
+---
+
+### 3. Clinical Workspace & Real-Time Dosha Telemetry
+> Grounded Sanskrit-to-English translation paired with modern clinical interpretation, real-time Dosha balance analysis (Vāta, Pitta, Kapha), and classical Rasa Panchaka pharmacological breakdowns.
+
+| Workspace Translation & Interpretation | Dosha Balance & Rasa Panchaka Analysis |
+| :---: | :---: |
+| <img src="docs/assets/screenshots/03_shloka_workspace_analysis.jpg" alt="Workspace Analysis" width="100%" /> | <img src="docs/assets/screenshots/04_dosha_and_rasa_panchaka.jpg" alt="Dosha and Rasa Panchaka Analysis" width="100%" /> |
+
+---
+
+### 4. Deep AI Insights & Ontology Confidence Analytics
+> Entity classification across 7 Ayurvedic classes with multi-hop predicate mapping (`[:BALANCES]`, `[:TREATS]`, `[:PACIFIES]`) backed by model confidence scores and verification metrics.
+
+<p align="center">
+  <img src="docs/assets/screenshots/05_ai_insights_ontology.jpg" alt="AI Insights & Ontology Relationships" width="95%" />
+</p>
+
+---
+
+### 5. Interactive Neo4j Knowledge Graph Traversal
+> Cytoscape.js dynamic graph canvas structuring **250+ entity nodes** and **1,250+ clinical relationships**, allowing researchers to visually navigate complex multi-hop botanical and disease correlations.
+
+<p align="center">
+  <img src="docs/assets/screenshots/06_neo4j_knowledge_graph.jpg" alt="Interactive Neo4j Knowledge Graph" width="95%" />
+</p>
+
+---
+
+### 6. 3D Virtual Reality Pathshala (Ancient Temple & Scripture Recitation)
+> A WebGL / Three.js / A-Frame spatial environment enabling immersive exploration of classical formulations (*Takrāriṣṭa*, *Durālabhāriṣṭa*, *Yogarājāsava*) with authentic audio recitation.
+
+| Sacred Temple Architecture & Formulation Tablets | Classical Holy Scripture Reader Modal |
+| :---: | :---: |
+| <img src="docs/assets/screenshots/08_vr_pathshala_temple.jpg" alt="3D VR Pathshala Temple" width="100%" /> | <img src="docs/assets/screenshots/09_vr_scripture_reading.jpg" alt="VR Scripture Reading" width="100%" /> |
+
+---
+
+### 7. Research Archives & Certified Clinical Dictionary
+> Comprehensive collections management for Upanishads and Samhitas, alongside clinical ontology governance grounding LLM extraction against 65,488 verified medical terms.
+
+| Research Collections Management | Certified Domain Dictionary Governance |
+| :---: | :---: |
+| <img src="docs/assets/screenshots/07_research_collections.jpg" alt="Research Collections" width="100%" /> | <img src="docs/assets/screenshots/10_certified_dictionary_settings.jpg" alt="Certified Dictionary Settings" width="100%" /> |
 
 ---
 

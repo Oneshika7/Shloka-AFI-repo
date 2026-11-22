@@ -235,7 +235,7 @@ def analyze_shloka(request: AnalyzeRequest):
     if use_groq:
         text_api_key = groq_key
         text_base_url = "https://api.groq.com/openai/v1"
-        text_model = "llama-3.3-70b-versatile"
+        text_model = "openai/gpt-oss-120b"
     else:
         text_api_key = gemini_key
         text_base_url = "https://generativelanguage.googleapis.com/v1beta/openai/"
@@ -381,15 +381,27 @@ def analyze_shloka(request: AnalyzeRequest):
 
         print(f">>> Calling Groq/Gemini API using model={text_model}...", flush=True)
         try:
-            response = text_client.chat.completions.create(
-                model=text_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                response_format={"type": "json_object"},
-                temperature=0.2
-            )
+            try:
+                response = text_client.chat.completions.create(
+                    model=text_model,
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.2
+                )
+            except Exception as e_primary:
+                print(f"Primary model {text_model} failed ({e_primary}), falling back to qwen/qwen3.8-27b...", flush=True)
+                response = text_client.chat.completions.create(
+                    model="qwen/qwen3.8-27b",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=0.2
+                )
             print(">>> LLM response received successfully!", flush=True)
             raw_response = response.choices[0].message.content.strip()
             if raw_response.startswith("```json"):

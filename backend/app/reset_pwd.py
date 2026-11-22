@@ -9,7 +9,7 @@ from app.api.auth import get_password_hash
 db = SessionLocal()
 user = db.query(User).filter(User.email == "admin@shloka.com").first()
 if user:
-    user.hashed_password = get_password_hash("Admin@123")
+    user.hashed_password = get_password_hash("Vanshika1")
     user.is_verified = True
     db.commit()
     print("Password reset to Admin@123")
